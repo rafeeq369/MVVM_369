@@ -6,7 +6,8 @@ target 'MVVM_Snapay' do
   use_frameworks!
 
   # Pods for MVVM_Snapay
-  
+  pod 'NVActivityIndicatorView'
+
 
 
 end

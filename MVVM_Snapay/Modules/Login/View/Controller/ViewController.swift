@@ -1,16 +1,17 @@
 //  ViewController.swift
 //  MVVM_Snapay
 //  Created by Rabeef Rahuman on 6/1/24.
- 
+
 
 import UIKit
+import NVActivityIndicatorView
 
 class ViewController: UIViewController {
     
     //MARK:  Properties
     
     var loginViewModel: LoginViewModel!
-    
+    var activityIndicatorView: NVActivityIndicatorView!
     
     //MARK:  IBOutlets
     
@@ -48,13 +49,13 @@ class ViewController: UIViewController {
     //MARK: IBActions
     
     @IBAction func fetch_user_btn_action(_ sender: Any) {
-        loadingIndicator()
+        startLoading()
         let randomId = Int.random(in: 1...10)
         loginViewModel.fetchUser(userId: "\(randomId)")
     }
     
     @IBAction func fetch_post_btn_action(_ sender: Any) {
-        loadingIndicator()
+        startLoading()
         let randomId = Int.random(in: 1...100)
         loginViewModel.fetchPosts(postId: "\(randomId)")
     }
@@ -70,9 +71,22 @@ extension ViewController {
         loginViewModel.delegate = self
     }
     
+    
     func UISetup() {
         fetchUserButton?.layer.cornerRadius = 10
         fetchPostButton?.layer.cornerRadius = 10
+        
+        let frame = CGRect(x: self.view.frame.width/2 - 30, y: self.view.frame.height/2 - 30, width: 60, height: 60)
+        activityIndicatorView = NVActivityIndicatorView(frame: frame, type: .ballClipRotatePulse, color: .orange, padding: nil)
+        self.view.addSubview(activityIndicatorView)
+    }
+    
+    func startLoading() {
+        activityIndicatorView.startAnimating()
+    }
+    
+    func stopLoading() {
+        activityIndicatorView.stopAnimating()
     }
     
 }
@@ -88,8 +102,7 @@ extension ViewController: GenericProtcol {
         
         DispatchQueue.main.async {
             
-            // Dismiss Loading Indicator
-            self.dismiss(animated: false, completion: nil)
+            self.stopLoading()
             
             // 'User' Api Response
             
@@ -118,7 +131,6 @@ extension ViewController: GenericProtcol {
                     self.body_lbl?.text  = "Body : \(body)"
                 }
                 
-                
             }
             
         }
@@ -129,10 +141,9 @@ extension ViewController: GenericProtcol {
     //  MARK: Handle_Failure_Response
     
     func failure(response: String) {
-
+        
         DispatchQueue.main.async {
-            self.dismiss(animated: false, completion: nil)
-            print(response)
+            self.stopLoading()
             self.showAlert(title: "Error", message: response)
         }
     }
